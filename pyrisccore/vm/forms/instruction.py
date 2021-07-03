@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from struct import iter_unpack, pack, unpack
 from typing import Dict, List, Optional, Tuple, Type
 
-from pyrisccore.registers import RegisterFile
+from pyrisccore.vm.forms.register import RegisterFile
 
 
 class Field:

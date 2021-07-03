@@ -1,7 +1,7 @@
 """ test the building blocks of instruction objects
 """
 
-from pyrisccore.instructions import Field
+from pyrisccore.vm.forms.instruction import Field
 
 
 def test_field_mask():

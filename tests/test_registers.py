@@ -1,7 +1,7 @@
 """ test the register file
 """
 
-from pyrisccore.registers import RegisterFile
+from pyrisccore.vm.forms.register import RegisterFile
 
 
 def test_init():
