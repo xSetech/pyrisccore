@@ -6,7 +6,24 @@ from typing import List
 import pytest
 
 from pyrisccore import PyrisccoreAssertion
-from pyrisccore.vm.forms.field import Field
+from pyrisccore.vm.forms.field import bit_count, Field, Value
+
+
+@pytest.mark.parametrize(
+    ["i", "count"],
+    [
+        [0b0000, 0],
+        [0b0001, 1],
+        [0b0010, 1],
+        [0b0100, 1],
+        [0b0101, 2],
+        [0b1010, 2],
+        [0b1110, 3],
+        [0b1111, 4],
+    ]
+)
+def test_bit_count(i, count):
+    assert bit_count(i) == count
 
 
 def test_field_validate_slice():
@@ -27,6 +44,37 @@ def test_field_validate_slice():
         Field._validate_slice(slice(0, 0, 0))
     with pytest.raises(PyrisccoreAssertion):
         Field._validate_slice(slice(0, 0, 2))
+
+
+def test_field_invalid_inputs():
+
+    # Case: source/destination are not the same size
+    with pytest.raises(PyrisccoreAssertion):
+        Field(source=slice(0, 0), destination=slice(0, 1))
+
+
+def test_value_tuple_cast():
+
+    # Case: Value will cast Value.field to a tuple.
+    v = Value(fields=[Field(source=slice(0,0))])
+    assert isinstance(v.fields, tuple)
+
+
+def test_value_invalid_inputs():
+
+    # Case: Overlapping source bits
+    with pytest.raises(PyrisccoreAssertion):
+        Value(fields=[
+            Field(source=slice(0, 0), destination=slice(1, 1)),
+            Field(source=slice(0, 0), destination=slice(2, 2)),
+        ])
+
+    # Case: Overlapping destination bits
+    with pytest.raises(PyrisccoreAssertion):
+        Value(fields=[
+            Field(source=slice(1, 1), destination=slice(0, 0)),
+            Field(source=slice(2, 2), destination=slice(0, 0)),
+        ])
 
 
 @pytest.mark.parametrize(
@@ -118,6 +166,137 @@ def test_field_read_with_destination(field: Field, word: int, output: int):
 )
 def test_field_write_with_destination(field: Field, args: List[int], output: int):
     assert field.write(*args) == output
+
+
+@pytest.mark.parametrize(
+    ["value", "word", "output"],
+    [
+        # Case: Value from a single 1-bit field
+        [
+            Value(fields=(
+                Field(source=slice(0, 0)),
+            )),
+            0b1, 0b1
+        ],
+
+        # Case: Value from a single 2-bit field
+        [
+            Value(fields=(
+                Field(source=slice(1, 2)),
+            )),
+            0b110, 0b11
+        ],
+
+        # Case: Value from/to multiple 1-bit fields
+        [
+            Value(fields=(
+                Field(source=slice(0, 0), destination=slice(0, 0)),
+                Field(source=slice(2, 2), destination=slice(1, 1)),
+            )),
+            0b101, 0b11
+        ],
+
+        # Case: Value from/to multiple 2-bit fields
+        [
+            Value(fields=(
+                Field(source=slice(0, 1), destination=slice(0, 1)),
+                Field(source=slice(3, 4), destination=slice(4, 5)),
+            )),
+            0b011011, 0b110011
+        ],
+
+    ]
+)
+def test_value_read(value: Value, word: int, output: int):
+    assert value.read(word) == output
+
+
+@pytest.mark.parametrize(
+    ["value", "output", "word"],
+    [
+        # Case: Value from a single 1-bit field
+        [
+            Value(fields=(
+                Field(source=slice(0, 0)),
+            )),
+            0b1, 0b1
+        ],
+
+        # Case: Value from a single 2-bit field
+        [
+            Value(fields=(
+                Field(source=slice(1, 2)),
+            )),
+            0b110, 0b11
+        ],
+
+        # Case: Value from/to multiple 1-bit fields
+        [
+            Value(fields=(
+                Field(source=slice(0, 0), destination=slice(0, 0)),
+                Field(source=slice(2, 2), destination=slice(1, 1)),
+            )),
+            0b101, 0b11
+        ],
+
+        # Case: Value from/to multiple 2-bit fields
+        [
+            Value(fields=(
+                Field(source=slice(0, 1), destination=slice(0, 1)),
+                Field(source=slice(3, 4), destination=slice(4, 5)),
+            )),
+            0b011011, 0b110011
+        ],
+
+    ]
+)
+def test_value_write(value: Value, output: int, word: int):
+    assert value.write(word, 0) == output
+
+
+@pytest.mark.parametrize(
+    ["value", "src_mask", "dst_mask"],
+    [
+
+        # Case: Value from a single 1-bit field
+        [
+            Value(fields=(
+                Field(source=slice(0, 0)),
+            )),
+            0b1, 0b1
+        ],
+
+        # Case: Value from a single 2-bit field
+        [
+            Value(fields=(
+                Field(source=slice(1, 2)),
+            )),
+            0b110, 0b11
+        ],
+
+        # Case: Value from/to multiple 1-bit fields
+        [
+            Value(fields=(
+                Field(source=slice(0, 0), destination=slice(0, 0)),
+                Field(source=slice(2, 2), destination=slice(1, 1)),
+            )),
+            0b101, 0b11
+        ],
+
+        # Case: Value from/to multiple 2-bit fields
+        [
+            Value(fields=(
+                Field(source=slice(0, 1), destination=slice(0, 1)),
+                Field(source=slice(3, 4), destination=slice(4, 5)),
+            )),
+            0b011011, 0b110011
+        ],
+
+    ]
+)
+def test_value_src_and_dst_masks(value: Value, src_mask: int, dst_mask: int):
+    assert value.source_mask == src_mask
+    assert value.destination_mask == dst_mask
 
 
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4

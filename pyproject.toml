@@ -5,6 +5,7 @@ disable = [
     "missing-function-docstring",
     "too-few-public-methods",
     "missing-final-newline",
+    "too-many-branches",
     "line-too-long",
     "invalid-name",
 ]
