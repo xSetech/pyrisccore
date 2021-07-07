@@ -149,7 +149,7 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
             Field(slice(25, 31), "imm", slice(5, 11)): 0,
         },
         subfields=(
-            Field(slice(0, 4), "shamt", parent="imm"),
+            Field(slice(20, 24), "shamt"),
         ),
     ),
     "SRLI": PseudoInstruction("SRLI", operations["OP-IMM"],
@@ -158,7 +158,7 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
             Field(slice(25, 31), "imm", slice(5, 11)): 0,
         },
         subfields=(
-            Field(slice(0, 4), "shamt", parent="imm"),
+            Field(slice(20, 24), "shamt"),
         ),
     ),
     "SRAI": PseudoInstruction("SRAI", operations["OP-IMM"],
@@ -167,7 +167,7 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
             Field(slice(25, 31), "imm", slice(5, 11)): 0b0100000,
         },
         subfields=(
-            Field(slice(0, 4), "shamt", parent="imm"),
+            Field(slice(20, 24), "shamt"),
         ),
     ),
     "LUI": PseudoInstruction("LUI", operations["LUI"]),
