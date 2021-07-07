@@ -6,7 +6,7 @@ from typing import List
 import pytest
 
 from pyrisccore import PyrisccoreAssertion
-from pyrisccore.vm.forms.instruction import Field
+from pyrisccore.vm.forms.field import Field
 
 
 def test_field_validate_slice():

@@ -7,7 +7,10 @@ Based on:
 
 from typing import Dict
 
-from pyrisccore.vm.forms.instruction import Field, Format, PseudoInstruction, Operation
+from pyrisccore.vm.forms.field import Field
+from pyrisccore.vm.forms.format import Format
+from pyrisccore.vm.forms.operation import Operation
+from pyrisccore.vm.forms.pseudoinstruction import PseudoInstruction
 
 
 # instruction format letter -> Format
