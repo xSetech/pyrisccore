@@ -1,7 +1,8 @@
 """ RISC-V 32-bit Base Integer Instruction Set ("RV32I")
 
-Based on:
- - "RV32I Base Integer Instruction Set, Version 2.1" Page 31-48 of
+Opcodes, field names, mnemonics, etc cited from:
+ - “The RISC-V Instruction Set Manual, Volume I: User-Level ISA, Document Version 20191213”,
+ - Editors Andrew Waterman and Krste Asanovi ́c, RISC-V Foundation, December 2019.
  - https://github.com/riscv/riscv-isa-manual/releases/download/Ratified-IMAFDQC/riscv-spec-20191213.pdf
 """
 
