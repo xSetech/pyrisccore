@@ -1,0 +1,13 @@
+# The documentation for pylint configuration is not good.
+# See: https://github.com/PyCQA/pylint/issues/3181
+[tool.pylint.messages_control]
+disable = [
+    "missing-function-docstring",
+    "too-few-public-methods",
+    "missing-final-newline",
+    "line-too-long",
+    "invalid-name",
+]
+
+
+# vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
