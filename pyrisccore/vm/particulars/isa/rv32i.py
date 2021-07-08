@@ -120,17 +120,17 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
     ),
     "SLTI": PseudoInstruction("SLTI", operations["OP-IMM"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b010,
         },
     ),
     "SLTIU": PseudoInstruction("SLTIU", operations["OP-IMM"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b011,
         },
     ),
     "ANDI": PseudoInstruction("ANDI", operations["OP-IMM"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b111,
         },
     ),
     "ORI": PseudoInstruction("ORI", operations["OP-IMM"],
@@ -145,8 +145,8 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
     ),
     "SLLI": PseudoInstruction("SLLI", operations["OP-IMM"],
         constants={
-            "funct3": 0b000,
-            Field(slice(25, 31), "imm", slice(5, 11)): 0,
+            "funct3": 0b001,
+            Field(slice(25, 31), "imm", slice(5, 11)): 0b0000000,
         },
         subfields=(
             Field(slice(20, 24), "shamt"),
@@ -154,7 +154,7 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
     ),
     "SRLI": PseudoInstruction("SRLI", operations["OP-IMM"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b101,
             Field(slice(25, 31), "imm", slice(5, 11)): 0,
         },
         subfields=(
@@ -163,7 +163,7 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
     ),
     "SRAI": PseudoInstruction("SRAI", operations["OP-IMM"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b101,
             Field(slice(25, 31), "imm", slice(5, 11)): 0b0100000,
         },
         subfields=(
@@ -183,43 +183,43 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
     ),
     "SLT": PseudoInstruction("SLT", operations["OP"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b010,
             "funct7": 0,
         },
     ),
     "SLTU": PseudoInstruction("SLTU", operations["OP"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b011,
             "funct7": 0,
         },
     ),
     "AND": PseudoInstruction("AND", operations["OP"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b111,
             "funct7": 0,
         },
     ),
     "OR": PseudoInstruction("OR", operations["OP"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b110,
             "funct7": 0,
         },
     ),
     "XOR": PseudoInstruction("XOR", operations["OP"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b100,
             "funct7": 0,
         },
     ),
     "SLL": PseudoInstruction("SLL", operations["OP"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b001,
             "funct7": 0,
         },
     ),
     "SRL": PseudoInstruction("SRL", operations["OP"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b101,
             "funct7": 0,
         },
     ),
@@ -231,7 +231,7 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
     ),
     "SRA": PseudoInstruction("SRA", operations["OP"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b101,
             "funct7": 0b0100000,
         },
     ),
@@ -258,34 +258,72 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
     ),
     "BNE": PseudoInstruction("BNE", operations["BRANCH"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b001,
         },
     ),
     "BLT": PseudoInstruction("BLT", operations["BRANCH"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b100,
         },
     ),
     "BLTU": PseudoInstruction("BLTU", operations["BRANCH"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b110,
         },
     ),
     "BGE": PseudoInstruction("BGE", operations["BRANCH"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b101,
         },
     ),
     "BGEU": PseudoInstruction("BGEU", operations["BRANCH"],
         constants={
-            "funct3": 0b000,
+            "funct3": 0b111,
         },
     ),
 
     # Load and Store
 
-    "LOAD": PseudoInstruction("LOAD", operations["LOAD"]),
-    "STORE": PseudoInstruction("STORE", operations["STORE"]),
+    "LB": PseudoInstruction("LB", operations["LOAD"],
+        constants={
+            "funct3": 0b000,
+        }
+    ),
+    "LH": PseudoInstruction("LH", operations["LOAD"],
+        constants={
+            "funct3": 0b001,
+        }
+    ),
+    "LW": PseudoInstruction("LW", operations["LOAD"],
+        constants={
+            "funct3": 0b010,
+        }
+    ),
+    "LBU": PseudoInstruction("LBU", operations["LOAD"],
+        constants={
+            "funct3": 0b100,
+        }
+    ),
+    "LHU": PseudoInstruction("LHU", operations["LOAD"],
+        constants={
+            "funct3": 0b101,
+        }
+    ),
+    "SB": PseudoInstruction("SB", operations["STORE"],
+        constants={
+            "funct3": 0b000,
+        }
+    ),
+    "SH": PseudoInstruction("SH", operations["STORE"],
+        constants={
+            "funct3": 0b001,
+        }
+    ),
+    "SW": PseudoInstruction("SW", operations["STORE"],
+        constants={
+            "funct3": 0b010,
+        }
+    ),
 
     # Memory Ordering
 
