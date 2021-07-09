@@ -5,7 +5,8 @@ from dataclasses import dataclass, field
 from typing import Optional, Tuple
 
 from pyrisccore import PyrisccoreAssertion
-from pyrisccore.vm.forms.word import WORD, Word
+from pyrisccore.misc import mask
+from pyrisccore.vm.forms.slice import Slice
 
 
 def bit_count(i: int) -> int:
@@ -20,110 +21,54 @@ def bit_count(i: int) -> int:
     return count
 
 
-@dataclass(
-    frozen=False,       # <- __post_init__() will fail if this is True.
-    unsafe_hash=True    # <- Once a Field is instantiated, it's effectively frozen.
-)
+@dataclass(frozen=True)
 class Field:
-    """ A slice of an instruction word
-
-    Example:
-
-     0123456 789AB  <- bit index
-    --------------
-    |1100100|00000  <- values
-    --------------
-     ^^^^^^^        <- ex. "opcode" slice(0, 6) == 0b1100100
+    """ A mapping from the bits of an int to the bits of another
     """
 
     # The range of bits in a word for this field's value.
-    source: slice
-    source_mask: int = field(init=False)
+    source: Slice
 
     # The name of the field. Fields with the same name compose one Value from multiple slices.
     name: Optional[str] = None
 
     # Declare which of the source bits map to specific bits of the value.
     # For example, see the "imm" field of the J-Type instruction format.
-    destination: Optional[slice] = None
-    destination_mask: Optional[int] = field(init=False, default=None)
-
-    # Number of bits required to represent this field's value.
-    size: int = field(init=False)
+    destination: Optional[Slice] = None
 
     def __post_init__(self):
 
-        # Enforce constraints on the source slice
-        self._validate_slice(self.source)
-        size_src = self.source.stop - self.source.start + 1
-
-        # Use the source slice
-        self.source_mask: int = self.mask(self.source.start, size_src)
-        self.size: int = size_src
-
-        # Enforce constraints on the destination slice
+        # Enforce constraints on the destination Slice
         if self.destination is not None:
-            self._validate_slice(self.destination)
-            size_dst = self.destination.stop - self.destination.start + 1
-            if size_src != size_dst:
-                raise PyrisccoreAssertion(f"'source' and 'destination' slices must be the same size ({size_src} bits vs {size_dst} bits)")
+            if self.source.length != self.destination.length:
+                raise PyrisccoreAssertion("A Field's source and destination slices must be the same length")
 
-            # Use the destination slice
-            self.destination_mask: int = self.mask(self.destination.start, size_dst)
+    @property
+    def length(self):
+        return self.source.length
 
-    @staticmethod
-    def _validate_slice(s: slice):
-        if s.start is None:
-            raise PyrisccoreAssertion(f"'start' must be provided in the slice: {s}")
-        if s.step is not None and s.step != 1:
-            raise PyrisccoreAssertion(f"'step' must be 1 in the slice: {s}")
-        if s.stop >= WORD.xlen or s.start >= WORD.xlen:
-            raise PyrisccoreAssertion(f"'start' and 'stop' cannot exceed the architecture's XLEN in the slice: {s}")
-        if s.start < 0 or s.stop < 0:
-            raise PyrisccoreAssertion(f"'start' and 'stop' cannot be negative in the slice: {s}")
-
-    @staticmethod
-    def mask(lsb: int, bit_length: int) -> int:
-        """ return a mask isolating the value of this particular field
+    def get(self, source: int) -> int:
+        """ Get bits from an integer "source" according to this Field's bit-mapping
         """
-        if bit_length <= 0:
-            return 0
-        return ((1 << bit_length) - 1) << lsb
-
-    @staticmethod
-    def _read(source: int, mask: int, lsb: int) -> int:
-        """ read a value from a source given a mask and the least significant bit
-        """
-        return (source & mask) >> lsb
-
-    @staticmethod
-    def _write(value: int, mask: int, lsb: int, destination: int = 0, word: Word = WORD) -> int:
-        """ write a value to a destination given a mask and the least significant bit
-        """
-        return (destination & (~mask & word.mask)) | (value << lsb)
-
-    def read(self, source: int) -> int:
-        """ return the value of this field given a source word
-        """
-        value = self._read(source, self.source_mask, self.source.start)
+        value = self.source.get(source)
 
         if self.destination is None:
             return value
 
-        return self._write(value, self.destination_mask, self.destination.start, 0)
+        return self.destination.set(value, 0)
 
-    def write(self, value: int, destination: int = 0) -> int:
-        """ return of the value of this field represented in a destination word
+    def set(self, value: int, destination: int = 0) -> int:
+        """ Set the bits in an integer "destination" to a "value" according to this Field's bit-mapping
         """
         if self.destination is not None:
-            value = self._read(value, self.destination_mask, self.destination.start)
+            value = self.destination.get(value)
 
-        return self._write(value, self.source_mask, self.source.start, destination)
+        return self.source.set(value, destination)
 
 
 @dataclass(
     frozen=False,       # <- __post_init__() will fail if this is True.
-    unsafe_hash=True    # <- Once a Field is instantiated, it's effectively frozen.
+    unsafe_hash=True    # <- This object is used as though it's actually read-only.
 )
 class Value:
     """ One or more slices of an instruction word that make up a single value
@@ -144,10 +89,6 @@ class Value:
         # Cast self.fields to a tuple if it's a list or another sequence.
         if not isinstance(self.fields, tuple):
             self.fields = tuple(self.fields)
-
-        # Constraint: The sum of the sizes of the fields can't exceed XLEN
-        if sum(f.size for f in self.fields) > WORD.xlen:
-            raise PyrisccoreAssertion(f"A composition of Field objects can't exceed XLEN ({WORD.xlen}) size")
 
         # Constraint:
         #
@@ -170,19 +111,19 @@ class Value:
 
         # A source->destination mapping isn't required for a single field.
         if len(self.fields) == 1:
-            self.source_mask = self.fields[0].source_mask
+            self.source_mask = self.fields[0].source.mask
             if self.fields[0].destination is None:
-                self.destination_mask = Field.mask(0, self.fields[0].size)
+                self.destination_mask = mask(0, self.fields[0].source.length)
             else:
-                self.destination_mask = self.fields[0].destination_mask
+                self.destination_mask = self.fields[0].destination.mask
 
-        # ... an is essential for multiple fields.
+        # ... and is essential for multiple fields.
         else:
             source_mask_bit_count = 0
             destination_mask_bits_count = 0
             for f in self.fields:
-                self.source_mask |= f.source_mask
-                self.destination_mask |= f.destination_mask
+                self.source_mask |= f.source.mask
+                self.destination_mask |= f.destination.mask
                 if bit_count(self.source_mask) == source_mask_bit_count:
                     raise PyrisccoreAssertion(f"Field has overlapping source bits: {f}")
                 if bit_count(self.destination_mask) == destination_mask_bits_count:
@@ -190,19 +131,19 @@ class Value:
                 source_mask_bit_count = bit_count(self.source_mask)
                 destination_mask_bits_count = bit_count(self.destination_mask)
 
-    def read(self, source: int) -> int:
-        """ return the value of this field given a source word
+    def get(self, source: int) -> int:
+        """ Get bits from an integer "source" according to this Value's bit-mappings
         """
         value = 0
         for f in self.fields:
-            value |= f.read(source)
+            value |= f.get(source)
         return value
 
-    def write(self, value: int, destination: int) -> int:
-        """ return of the value of this field represented in a destination word
+    def set(self, value: int, destination: int) -> int:
+        """ Set the bits in an integer "destination" to a "value" according to this Value's bit-mappings
         """
         for f in self.fields:
-            destination |= f.write(value, destination)
+            destination |= f.set(value, destination)
         return destination
 
 

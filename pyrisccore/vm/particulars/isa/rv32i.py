@@ -12,6 +12,7 @@ from pyrisccore.vm.forms.field import Field
 from pyrisccore.vm.forms.format import Format
 from pyrisccore.vm.forms.operation import Operation
 from pyrisccore.vm.forms.pseudoinstruction import PseudoInstruction
+from pyrisccore.vm.forms.slice import Slice
 
 
 # instruction format letter -> Format
@@ -20,70 +21,70 @@ formats: Dict[str, Format] = {
     "R": Format(
         name="R",
         fields = (
-            Field(slice( 0,  6), "opcode"),
-            Field(slice( 7, 11), "rd"),
-            Field(slice(12, 14), "funct3"),
-            Field(slice(15, 19), "rs1"),
-            Field(slice(20, 24), "rs2"),
-            Field(slice(25, 31), "funct7"),
+            Field(Slice( 0,  6), "opcode"),
+            Field(Slice( 7, 11), "rd"),
+            Field(Slice(12, 14), "funct3"),
+            Field(Slice(15, 19), "rs1"),
+            Field(Slice(20, 24), "rs2"),
+            Field(Slice(25, 31), "funct7"),
         )
     ),
 
     "I": Format(
         name="I",
         fields = (
-            Field(slice( 0,  6), "opcode"),
-            Field(slice( 7, 11), "rd"),
-            Field(slice(12, 14), "funct3"),
-            Field(slice(15, 19), "rs1"),
-            Field(slice(20, 31), "imm", slice(0, 11)),
+            Field(Slice( 0,  6), "opcode"),
+            Field(Slice( 7, 11), "rd"),
+            Field(Slice(12, 14), "funct3"),
+            Field(Slice(15, 19), "rs1"),
+            Field(Slice(20, 31), "imm", Slice(0, 11)),
         )
     ),
 
     "S": Format(
         name="S",
         fields = (
-            Field(slice( 0,  6), "opcode"),
-            Field(slice( 7, 11), "imm", slice(0, 4)),
-            Field(slice(12, 14), "funct3"),
-            Field(slice(15, 19), "rs1"),
-            Field(slice(20, 24), "rs2"),
-            Field(slice(25, 31), "imm", slice(5, 11)),
+            Field(Slice( 0,  6), "opcode"),
+            Field(Slice( 7, 11), "imm", Slice(0, 4)),
+            Field(Slice(12, 14), "funct3"),
+            Field(Slice(15, 19), "rs1"),
+            Field(Slice(20, 24), "rs2"),
+            Field(Slice(25, 31), "imm", Slice(5, 11)),
         )
     ),
 
     "B": Format(
         name="B",
         fields = (
-            Field(slice( 0,  6), "opcode"),
-            Field(slice( 7,  7), "imm", slice(11, 11)),
-            Field(slice( 8, 11), "imm", slice(1, 4)),
-            Field(slice(12, 14), "funct3"),
-            Field(slice(15, 19), "rs1"),
-            Field(slice(20, 24), "rs2"),
-            Field(slice(25, 30), "imm", slice(5, 10)),
-            Field(slice(31, 31), "imm", slice(12)),
+            Field(Slice( 0,  6), "opcode"),
+            Field(Slice( 7,  7), "imm", Slice(11, 11)),
+            Field(Slice( 8, 11), "imm", Slice(1, 4)),
+            Field(Slice(12, 14), "funct3"),
+            Field(Slice(15, 19), "rs1"),
+            Field(Slice(20, 24), "rs2"),
+            Field(Slice(25, 30), "imm", Slice(5, 10)),
+            Field(Slice(31, 31), "imm", Slice(12, 12)),
         )
     ),
 
     "U": Format(
         name="U",
         fields = (
-            Field(slice( 0,  6), "opcode"),
-            Field(slice( 7, 11), "rd"),
-            Field(slice(12, 31), "imm", slice(12, 31)),
+            Field(Slice( 0,  6), "opcode"),
+            Field(Slice( 7, 11), "rd"),
+            Field(Slice(12, 31), "imm", Slice(12, 31)),
         )
     ),
 
     "J": Format(
         name="J",
         fields = (
-            Field(slice( 0,  6), "opcode"),
-            Field(slice( 7, 11), "rd"),
-            Field(slice(12, 19), "imm", slice(12, 19)),
-            Field(slice(20, 20), "imm", slice(11, 11)),
-            Field(slice(21, 30), "imm", slice(1, 10)),
-            Field(slice(31, 31), "imm", slice(20, 20)),
+            Field(Slice( 0,  6), "opcode"),
+            Field(Slice( 7, 11), "rd"),
+            Field(Slice(12, 19), "imm", Slice(12, 19)),
+            Field(Slice(20, 20), "imm", Slice(11, 11)),
+            Field(Slice(21, 30), "imm", Slice(1, 10)),
+            Field(Slice(31, 31), "imm", Slice(20, 20)),
         )
     ),
 
@@ -146,28 +147,28 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
     "SLLI": PseudoInstruction("SLLI", operations["OP-IMM"],
         constants={
             "funct3": 0b001,
-            Field(slice(25, 31), "imm", slice(5, 11)): 0b0000000,
+            Field(Slice(25, 31), "imm", Slice(5, 11)): 0b0000000,
         },
         subfields=(
-            Field(slice(20, 24), "shamt"),
+            Field(Slice(20, 24), "shamt"),
         ),
     ),
     "SRLI": PseudoInstruction("SRLI", operations["OP-IMM"],
         constants={
             "funct3": 0b101,
-            Field(slice(25, 31), "imm", slice(5, 11)): 0,
+            Field(Slice(25, 31), "imm", Slice(5, 11)): 0,
         },
         subfields=(
-            Field(slice(20, 24), "shamt"),
+            Field(Slice(20, 24), "shamt"),
         ),
     ),
     "SRAI": PseudoInstruction("SRAI", operations["OP-IMM"],
         constants={
             "funct3": 0b101,
-            Field(slice(25, 31), "imm", slice(5, 11)): 0b0100000,
+            Field(Slice(25, 31), "imm", Slice(5, 11)): 0b0100000,
         },
         subfields=(
-            Field(slice(20, 24), "shamt"),
+            Field(Slice(20, 24), "shamt"),
         ),
     ),
     "LUI": PseudoInstruction("LUI", operations["LUI"]),
@@ -240,12 +241,12 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
 
     "JAL": PseudoInstruction("JAL", operations["JAL"],
         subfields=(
-            Field(slice(12, 31), "offset", slice(1, 20)),
+            Field(Slice(12, 31), "offset", Slice(1, 20)),
         )
     ),
     "JALR": PseudoInstruction("JALR", operations["JALR"],
         subfields=(
-            Field(slice(20, 31), "offset", slice(0, 11)),
+            Field(Slice(20, 31), "offset", Slice(0, 11)),
         )
     ),
 
@@ -333,15 +334,15 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
             "rs1": 0,
         },
         subfields=(
-            Field(slice(20, 20), "SW"),
-            Field(slice(21, 21), "SR"),
-            Field(slice(22, 22), "SO"),
-            Field(slice(23, 23), "SI"),
-            Field(slice(24, 24), "PW"),
-            Field(slice(25, 25), "PR"),
-            Field(slice(26, 26), "PO"),
-            Field(slice(27, 27), "PI"),
-            Field(slice(28, 31), "fm"),
+            Field(Slice(20, 20), "SW"),
+            Field(Slice(21, 21), "SR"),
+            Field(Slice(22, 22), "SO"),
+            Field(Slice(23, 23), "SI"),
+            Field(Slice(24, 24), "PW"),
+            Field(Slice(25, 25), "PR"),
+            Field(Slice(26, 26), "PO"),
+            Field(Slice(27, 27), "PI"),
+            Field(Slice(28, 31), "fm"),
         ),
     ),
 
@@ -355,15 +356,15 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
             "imm": 0b000,
         },
         subfields=(
-            Field(slice(20, 20), "SW"),
-            Field(slice(21, 21), "SR"),
-            Field(slice(22, 22), "SO"),
-            Field(slice(23, 23), "SI"),
-            Field(slice(24, 24), "PW"),
-            Field(slice(25, 25), "PR"),
-            Field(slice(26, 26), "PO"),
-            Field(slice(27, 27), "PI"),
-            Field(slice(28, 31), "fm"),
+            Field(Slice(20, 20), "SW"),
+            Field(Slice(21, 21), "SR"),
+            Field(Slice(22, 22), "SO"),
+            Field(Slice(23, 23), "SI"),
+            Field(Slice(24, 24), "PW"),
+            Field(Slice(25, 25), "PR"),
+            Field(Slice(26, 26), "PO"),
+            Field(Slice(27, 27), "PI"),
+            Field(Slice(28, 31), "fm"),
         ),
     ),
     "EBREAK": PseudoInstruction("EBREAK", operations["SYSTEM"],
@@ -374,15 +375,15 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
             "imm": 0b000,
         },
         subfields=(
-            Field(slice(20, 20), "SW"),
-            Field(slice(21, 21), "SR"),
-            Field(slice(22, 22), "SO"),
-            Field(slice(23, 23), "SI"),
-            Field(slice(24, 24), "PW"),
-            Field(slice(25, 25), "PR"),
-            Field(slice(26, 26), "PO"),
-            Field(slice(27, 27), "PI"),
-            Field(slice(28, 31), "fm"),
+            Field(Slice(20, 20), "SW"),
+            Field(Slice(21, 21), "SR"),
+            Field(Slice(22, 22), "SO"),
+            Field(Slice(23, 23), "SI"),
+            Field(Slice(24, 24), "PW"),
+            Field(Slice(25, 25), "PR"),
+            Field(Slice(26, 26), "PO"),
+            Field(Slice(27, 27), "PI"),
+            Field(Slice(28, 31), "fm"),
         ),
     ),
 
