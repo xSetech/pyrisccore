@@ -328,7 +328,7 @@ pseudoinstructions: Dict[str, PseudoInstruction] = {
 
     # Memory Ordering
 
-    "FENCE": PseudoInstruction("FENCE", operations["FENCE"],
+    "FENCE": PseudoInstruction("FENCE", operations["MISC-MEM"],
         constants={
             "rd": 0,
             "rs1": 0,
