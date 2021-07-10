@@ -10,23 +10,6 @@ from pyrisccore.vm.forms.field import bit_count, Field, Value
 from pyrisccore.vm.forms.slice import Slice
 
 
-@pytest.mark.parametrize(
-    ["i", "count"],
-    [
-        [0b0000, 0],
-        [0b0001, 1],
-        [0b0010, 1],
-        [0b0100, 1],
-        [0b0101, 2],
-        [0b1010, 2],
-        [0b1110, 3],
-        [0b1111, 4],
-    ]
-)
-def test_bit_count(i, count):
-    assert bit_count(i) == count
-
-
 def test_field_invalid_inputs():
 
     # Case: source/destination are not the same size

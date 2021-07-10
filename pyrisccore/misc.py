@@ -2,6 +2,18 @@
 """
 
 
+def bit_count(i: int) -> int:
+    """ Count the set bits in an integer i
+
+    Note: Python 3.10 introduced int.bit_count(); replace when it's released.
+    """
+    count = 0
+    while i != 0:
+        count += i & 0x1
+        i >>= 1
+    return count
+
+
 def mask(lsb: int, length: int) -> int:
     """ Given a least-significant bit and a length, return the corresponding bit mask.
 
