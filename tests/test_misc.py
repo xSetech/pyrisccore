@@ -3,7 +3,31 @@
 
 import pytest
 
-from pyrisccore.misc import bit_count, mask
+from pyrisccore.misc import (
+    bit_count,
+    frozendict,
+    mask,
+)
+
+
+@pytest.mark.parametrize(
+    ["d"],
+    [
+        [{}],
+        [{'a': 1}],
+        [{'b': [1, 2, 3]}],
+        [{'x': 1, 'y': 2}],
+        [{'y': 1, 'x': 2}],
+    ]
+)
+def test_frozendict(d: dict):
+    f = frozendict(d)
+
+    # Confirm it's hashable
+    hash(f)
+
+    # Confirm keys are preserved
+    assert d.keys() == f.keys()
 
 
 @pytest.mark.parametrize(

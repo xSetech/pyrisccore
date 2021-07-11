@@ -2,6 +2,25 @@
 """
 
 
+class frozendict(dict):
+    """ An immutable and hashable dict
+
+    Dict objects aren't hashable; Python has no builtin alternative:
+    https://www.python.org/dev/peps/pep-0416/
+
+    This object implements the proposed "frozendict":
+     - With no constraint that the values are hashable, only the keys.
+     - The order of the underlying dict's keys is ignored when hashing.
+     - Inherits from dict only, and thus not explicitly particpate in any metaclass.
+    """
+
+    def __hash__(self) -> int:
+        return hash(frozenset(self.keys()))
+
+    def __setitem__(self, *args, **kwargs):
+        raise NotImplementedError
+
+
 def bit_count(i: int) -> int:
     """ Count the set bits in an integer i
 
