@@ -7,7 +7,7 @@ from typing import Tuple
 from pyrisccore.vm.forms.field import Field
 
 
-@dataclass
+@dataclass(frozen=True)
 class Format:
     """ An instruction format
     """

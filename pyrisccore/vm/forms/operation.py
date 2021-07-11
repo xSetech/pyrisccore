@@ -3,17 +3,15 @@
 
 from dataclasses import dataclass
 
-from pyrisccore.vm.forms.format import Format
 
-
-@dataclass
+@dataclass(frozen=True)
 class Operation:
     """ A named and numbered category of instructions with the same format
     """
 
-    format: Format  # e.g. I-Type
+    format: str     # e.g. "I" for I-Type
     opcode: int     # e.g. 0b0110111
-    opname: str     # e.g. SYSTEM
+    name: str       # e.g. SYSTEM
 
 
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4

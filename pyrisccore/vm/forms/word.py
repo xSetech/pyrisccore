@@ -11,7 +11,4 @@ class Word:
         self.mask: int = (1 << xlen) - 1
 
 
-WORD = Word(xlen = 32)  # e.g. 32 for "32-bit"
-
-
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4

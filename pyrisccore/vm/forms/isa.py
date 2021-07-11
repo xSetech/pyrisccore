@@ -2,14 +2,15 @@
 """
 
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Set
 
 from pyrisccore.vm.forms.format import Format
 from pyrisccore.vm.forms.operation import Operation
 from pyrisccore.vm.forms.pseudoinstruction import PseudoInstruction
+from pyrisccore.vm.forms.word import Word
 
 
-@dataclass(frozen=False)
+@dataclass(frozen=True)
 class ISA:
     """ An Instruction Set Architecture ("ISA")
     """
@@ -20,23 +21,19 @@ class ISA:
     # A longer name for the ISA (e.g. "RISC-V 32-bit Base Integer Instruction Set")
     title: str
 
-    # The length of a word (e.g. 32 for 32-bit)
-    xlen: int
+    # The definition of a word (e.g. Word(xlen=32) for 32-bit)
+    word: Word
 
     # Instruction formats defining how slices of bits map to usable values.
-    # Mapping: instruction format letter -> Format (e.g. J -> Format for "J-Type")
-    formats: Dict[str, Format]
+    formats: Set[Format]
 
     # Named and numbered (by an "opcode") categories of instructions.
-    # Mapping: operation name -> Operation (e.g. "OP-IMM" -> Operation for "OP-IMM")
-    operations: Dict[int, Operation]
+    operations: Set[Operation]
 
     # Mnemonics and constants for instruction encoding and decoding.
-    # Mapping: mnemonic -> PseudoInstruction (e.g. "ADDI" -> PseudoInstruction for "ADDI")
-    pseudoinstructions: Dict[str, PseudoInstruction]
+    pseudoinstructions: Set[PseudoInstruction]
 
     # Optional mnemonics and constants for instruction encoding and decoding.
-    # Mapping: mnemonic -> PseudoInstruction (e.g. "NOP" -> PseudoInstruction for "ADDI x0 0")
     aliases: Dict[str, PseudoInstruction]
 
 
